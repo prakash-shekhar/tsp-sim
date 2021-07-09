@@ -55,7 +55,11 @@ void Simulation::add_stop(float x, float y)
         line[1].position = sf::Vector2f(Simulation::stops[i].x + 10, Simulation::stops[i].y + 10);
         line[0].color = dark_scheme ? sf::Color::White : sf::Color::Black;
         line[1].color = dark_scheme ? sf::Color::White : sf::Color::Black;
-        lines.push_back(line);
+        if(i < lines.size()) lines[i].push_back(line);
+        else {
+            std::vector<sf::VertexArray> v = {line};
+            lines.insert(lines.begin()+i, v);
+        }
     }
 }
 
@@ -69,9 +73,9 @@ void Simulation::render()
     }
     for (int i = 0; i < lines.size(); ++i)
     {
-        // lines[i][0].color = sf::Color::Green;
-        // lines[i][1].color = sf::Color::Green;
-        window.draw(lines[i]);
+        for (int j = 0; j < lines[i].size(); ++j){
+            window.draw(lines[i][j]);
+        }
     }
 
     window.display();
@@ -101,6 +105,10 @@ bool Simulation::handle_input()
             index = 1;
             run();
         }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::N))
+        {
+            nearest_neighbor();
+        }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
         {
             window.close();
@@ -108,4 +116,54 @@ bool Simulation::handle_input()
         }
     }
     return false;
+}
+
+void Simulation::nearest_neighbor(){
+    int siz = stops.size();
+    int graph[siz][siz];
+    for (int i = 0; i < siz; i++)
+    {
+        for (int j = 0; j < siz; j++)
+        {
+            graph[i][j] = graph[j][i] = getEuclideanDistance(stops[i], stops[j]);
+        }
+    }
+    std::vector<int> path;
+    std::set<int> visited;
+    path.push_back(0);
+    visited.insert(0);
+    for(int i = 0; i < siz; i++){
+        int orig[siz];
+        std::copy(graph[i], graph[i]+siz, orig);
+        std::sort(graph[i], graph[i]+siz);
+        int tmpidx = 0;
+        while(visited.find(std::find(orig, orig+siz, graph[i][tmpidx]) - orig) != visited.end()){
+            tmpidx++;
+        }
+        path.push_back(std::find(orig, orig+siz, graph[i][tmpidx]) - orig);
+        visited.insert(std::find(orig, orig+siz, graph[i][tmpidx]) - orig);
+    }
+    for(int i=0; i<path.size()-1; i++){
+        int j=i+1;
+            if(path[i]<path[j]){
+                std::cout << path[i] << " " << path[j] << "  ";
+                // lines[path[i]][path[j]][0].color = sf::Color::Green;
+                // lines[path[i]][path[j]][1].color = sf::Color::Green;
+            }
+            else{
+                std::cout << path[j] << " " << path[i] << "  ";
+                // lines[path[j]][path[i]][0].color = sf::Color::Green;
+                // lines[path[j]][path[i]][1].color = sf::Color::Green;
+            }
+    }
+    std::cout << std::endl;
+    lines[1][2][0].color = sf::Color::Green;
+    lines[1][3][1].color = sf::Color::Green;
+}
+
+int Simulation::getEuclideanDistance(Stop c1, Stop c2)
+{
+    int dx = pow((float)(c1.x - c2.x), 2);
+    int dy = pow((float)(c1.y - c2.y), 2);
+    return floor((float)(sqrt(dx + dy) + .5));
 }

@@ -2,6 +2,7 @@
 #define BOIDS_SIMULATION_H
 
 #include <vector>
+#include <set>
 #include <cmath>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
@@ -15,7 +16,7 @@ private:
     sf::RenderWindow window;
     int window_width, window_height, max_stops;
     std::vector<sf::CircleShape> shapes;
-    std::vector<sf::VertexArray> lines;
+    std::vector<std::vector<sf::VertexArray>> lines;
     int index = 1;
     bool dark_scheme;
     struct Stop
@@ -31,8 +32,6 @@ private:
     void render();
 
     bool handle_input();
-
-    void callalgo();
 
     int getEuclideanDistance(Stop c1, Stop c2);
 
