@@ -2,8 +2,10 @@
 #define BOIDS_SIMULATION_H
 
 #include <vector>
+#include <unordered_map>
 #include <set>
 #include <cmath>
+#include <string>  
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
@@ -16,7 +18,8 @@ private:
     sf::RenderWindow window;
     int window_width, window_height, max_stops;
     std::vector<sf::CircleShape> shapes;
-    std::vector<std::vector<sf::VertexArray>> lines;
+    std::vector<sf::Text> texts;
+    std::unordered_map<int, std::vector<sf::VertexArray>> lines;
     int index = 1;
     bool dark_scheme;
     struct Stop
