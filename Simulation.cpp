@@ -55,11 +55,9 @@ void Simulation::add_stop(float x, float y)
         line[1].position = sf::Vector2f(Simulation::stops[i].x + 10, Simulation::stops[i].y + 10);
         line[0].color = dark_scheme ? sf::Color::White : sf::Color::Black;
         line[1].color = dark_scheme ? sf::Color::White : sf::Color::Black;
-        if(i < lines.size()) lines[i].push_back(line);
-        else {
-            std::vector<sf::VertexArray> v = {line};
-            lines.insert(lines.begin()+i, v);
-        }
+        // lines[index-2] = {};
+        lines[index-2].resize(i+1);
+        lines[index-2][i] = line;
     }
 }
 
@@ -71,10 +69,14 @@ void Simulation::render()
     {
         window.draw(shapes[i]);
     }
-    for (int i = 0; i < lines.size(); ++i)
+    for (int i = 0; i < texts.size(); i++)
     {
-        for (int j = 0; j < lines[i].size(); ++j){
-            window.draw(lines[i][j]);
+        window.draw(texts[i]);
+    }
+    for (auto const& x : lines)
+    {
+        for (sf::VertexArray line : x.second){
+            window.draw(line);
         }
     }
 
@@ -143,22 +145,21 @@ void Simulation::nearest_neighbor(){
         path.push_back(std::find(orig, orig+siz, graph[i][tmpidx]) - orig);
         visited.insert(std::find(orig, orig+siz, graph[i][tmpidx]) - orig);
     }
+    path.back() = 0;
     for(int i=0; i<path.size()-1; i++){
         int j=i+1;
-            if(path[i]<path[j]){
-                std::cout << path[i] << " " << path[j] << "  ";
-                // lines[path[i]][path[j]][0].color = sf::Color::Green;
-                // lines[path[i]][path[j]][1].color = sf::Color::Green;
-            }
-            else{
-                std::cout << path[j] << " " << path[i] << "  ";
-                // lines[path[j]][path[i]][0].color = sf::Color::Green;
-                // lines[path[j]][path[i]][1].color = sf::Color::Green;
-            }
+        if(path[j]>path[i]){
+            lines[path[j]][path[i]][0].color = sf::Color::Green;
+            lines[path[j]][path[i]][1].color = sf::Color::Green;
+        }
+        else{
+            lines[path[i]][path[j]][0].color = sf::Color::Green;
+            lines[path[i]][path[j]][1].color = sf::Color::Green;
+        }
+        std::cout << path[i] << " " << path[j] << "  ";
+        
     }
     std::cout << std::endl;
-    lines[1][2][0].color = sf::Color::Green;
-    lines[1][3][1].color = sf::Color::Green;
 }
 
 int Simulation::getEuclideanDistance(Stop c1, Stop c2)

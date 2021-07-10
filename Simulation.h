@@ -9,9 +9,6 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
-// #include "algorithm.h"
-
-
 class Simulation {
 private:
 
